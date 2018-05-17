@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="initial-scale=1.0, width=device-width, height=device-height">
+		<title>Title</title>
+		<link rel="stylesheet" href="css/style.css" type="text/css">
+	</head>
+	<body>
+		<main id="playGround">
+			<canvas id="myCanvas"></canvas>
+		</main>
+		<footer id="footer" class="active">
+			<div></div>
+		</footer>
+		<script src="libs/three.min.js"></script>
+		<script src="libs/OrbitControls.js"></script>
+		<script src="libs/GLTFLoader.js"></script>
+		<script src="libs/DRACOLoader.js"></script>
+		<script src="js/app.js"></script>
+		<script>
+			// Add it as a global variable so it can be reached easily from the console for debugging.
+			const main = Main.getInstance();
+		</script>
+	</body>
+</html>
