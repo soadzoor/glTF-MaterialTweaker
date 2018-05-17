@@ -279,7 +279,7 @@ class Scene
 		}
 		else
 		{
-			/** The user can cancels it */
+			/** The user can cancel it */
 			if (material[textureType])
 			{
 				material[textureType] = null;
