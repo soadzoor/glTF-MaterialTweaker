@@ -13,7 +13,10 @@ class Scene
 {
 	private _canvas: HTMLCanvasElement;
 	private _scene: THREE.Scene;
-	private _mesh: THREE.Mesh;
+	private _mesh: THREE.Mesh; /** The currently chosen mesh*/
+	private _box: THREE.Mesh;
+	private _sphere: THREE.Mesh;
+	private _monkey: THREE.Mesh;
 	private _envMap: THREE.Texture;
 	private _camera: THREE.PerspectiveCamera;
 	private _controls: THREE.OrbitControls;
@@ -22,12 +25,14 @@ class Scene
 
 	private _eventDispatcher: THREE.EventDispatcher;
 
+	private _geometryElementsArray: HTMLImageElement[];
+
 	constructor()
 	{
 		this._canvas = <HTMLCanvasElement>document.getElementById('myCanvas');
 		this._scene = new THREE.Scene();
 		this._camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 2, 10000);
-		this._camera.position.set(0,0, 20);
+		this._camera.position.set(5, 10, 20);
 
 		this._eventDispatcher = new THREE.EventDispatcher();
 
@@ -42,7 +47,18 @@ class Scene
 
 		for (const element of textureElementsArray)
 		{
-			element.addEventListener("change", this.onTextureUpload);
+			element.addEventListener('change', this.onTextureUpload);
+		}
+
+		this._geometryElementsArray = [
+			<HTMLImageElement>document.getElementById('box'),
+			<HTMLImageElement>document.getElementById('sphere'),
+			<HTMLImageElement>document.getElementById('monkey')
+		];
+
+		for (const element of this._geometryElementsArray)
+		{
+			element.addEventListener('click', this.onGeometryChange);
 		}
 
 		this.initLights();
@@ -148,14 +164,32 @@ class Scene
 	{
 		const envMap = this._envMap;
 		envMap.mapping = THREE.EquirectangularReflectionMapping;
-		const geometry = new THREE.SphereBufferGeometry(2, 64, 32);
+		const sphereGeometry = new THREE.SphereBufferGeometry(2, 64, 32);
 		const material = new THREE.MeshStandardMaterial({
 			color: this.getColorFromGUI(this._defaultSettings.BaseColorFactor),
 			metalness: this._defaultSettings.MetallicFactor,
 			roughness: this._defaultSettings.RoughnessFactor,
 			envMap: envMap
 		});
-		this._mesh     = new THREE.Mesh(geometry, material);
+
+		const boxGeometry = new THREE.BoxBufferGeometry(4, 4, 4);
+
+
+		THREE.DRACOLoader.setDecoderPath('libs/draco/gltf/');
+		const gltfLoader = new THREE.GLTFLoader();
+		gltfLoader.setDRACOLoader(new THREE.DRACOLoader());
+
+		gltfLoader.load('assets/monkey.glb', (gltf: any) =>
+		{
+			const monkeyGeometry = gltf.scene.children[0].geometry;
+			this._monkey = new THREE.Mesh(monkeyGeometry, material);
+		});
+
+
+		this._sphere = new THREE.Mesh(sphereGeometry, material);
+		this._box = new THREE.Mesh(boxGeometry, material);
+
+		this._mesh = this._sphere;
 		this._scene.add(this._mesh);
 	}
 
@@ -168,6 +202,11 @@ class Scene
 
 	private initListeners = () =>
 	{
+		document.getElementById('closeMaps').addEventListener('click', () =>
+		{
+			document.getElementById('maps').classList.toggle('closed');
+		});
+
 		this._eventDispatcher.addEventListener('materialChanged', (event: any) =>
 		{
 			const parameterValue = event.message.parameterValue;
@@ -247,6 +286,24 @@ class Scene
 				material.needsUpdate = true;
 			}
 		}
+	};
+
+	private onGeometryChange = (event: Event) =>
+	{
+		const element = <any>event.currentTarget;
+		const geometry = element.name;
+
+		for (const element of this._geometryElementsArray)
+		{
+			element.classList.remove('active');
+		}
+		element.classList.add('active');
+
+		const newMesh = this[geometry];
+
+		this._scene.remove(this._mesh);
+		this._mesh = newMesh;
+		this._scene.add(this._mesh);
 	};
 
 	private initRenderer()

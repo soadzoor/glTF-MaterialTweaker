@@ -51,12 +51,15 @@ footer div {
 }
 
 #maps {
+	position: relative;
+	left: 0;
 	display: flex;
 	flex-direction: column;
 	z-index: 999;
 	width: 250px;
 	padding: 10px;
 	background-color: rgba(0, 0, 0, 0.6);
+	transition: all ease-out 0.1s;
 }
 
 #maps input {
@@ -65,7 +68,44 @@ footer div {
 
 #closeMaps {
 	position: absolute;
-	left: 255px;
-	bottom: 180px;
+	left: 250px;
+	bottom: 160px;
 	cursor: pointer;
+	width: 32px;
+	height: 45px;
+	transition: all ease-out 0.1s;
+}
+
+#closeMaps .bg {
+	background-color: rgba(0, 0, 0, 0.6);
+	background-image: url(../assets/arrow_left.svg);
+	background-size: 12px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	width: 100%;
+	height: 100%;
+}
+
+#maps.closed {
+	left: -250px;
+}
+
+#maps.closed #closeMaps .bg {
+	transform: rotate(180deg);
+}
+
+#modelChooser {
+	text-align: center;
+}
+
+#modelChooser img {
+	width: 30px;
+	height: 30px;
+	margin-left: 15px;
+	margin-right: 15px;
+	cursor: pointer;
+}
+
+#modelChooser img.active {
+	background-color: turquoise;
 }
