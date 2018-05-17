@@ -31,6 +31,20 @@ class Scene
 
 		this._eventDispatcher = new THREE.EventDispatcher();
 
+		const textureElementsArray = [
+			document.getElementById('uploadAlbedo'),
+			document.getElementById('uploadMetalness'),
+			document.getElementById('uploadRoughness'),
+			document.getElementById('uploadNormal'),
+			document.getElementById('uploadAO'),
+			document.getElementById('uploadEmissive')
+		];
+
+		for (const element of textureElementsArray)
+		{
+			element.addEventListener("change", this.onTextureUpload);
+		}
+
 		this.initLights();
 		this.initControls();
 		this.initRenderer();
@@ -179,7 +193,7 @@ class Scene
 					break;
 
 				case 'NormalScale':
-					material.normalScale = parameterValue;
+					(<any>material.normalScale).set(parameterValue, parameterValue); /** bug in definitly typed, this is a Vector2 */
 					break;
 
 				case 'OcclusionStrength':
@@ -190,7 +204,49 @@ class Scene
 					material.emissive.set(this.getColorFromGUI(parameterValue));
 					break;
 			}
+
+			material.needsUpdate = true;
 		});
+	};
+
+	private onTextureUpload = (event: Event) =>
+	{
+		const file = (<any>event.currentTarget).files[0];
+		const textureType = (<any>event.currentTarget).name;
+		const material = <THREE.MeshStandardMaterial>this._mesh.material;
+
+		const reader = new FileReader();
+
+		reader.onload = (event) =>
+		{
+			if (!material[textureType])
+			{
+				material[textureType] = new THREE.Texture();
+				material[textureType].image = new Image();
+			}
+
+			material[textureType].image.src = reader.result;
+			material[textureType].image.onload = () =>
+			{
+				material[textureType].needsUpdate = true;
+				material.needsUpdate = true;
+			};
+
+		};
+
+		if (file)
+		{
+			reader.readAsDataURL(file);
+		}
+		else
+		{
+			/** The user can cancels it */
+			if (material[textureType])
+			{
+				material[textureType] = null;
+				material.needsUpdate = true;
+			}
+		}
 	};
 
 	private initRenderer()

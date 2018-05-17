@@ -49,3 +49,23 @@ footer div {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+#maps {
+	display: flex;
+	flex-direction: column;
+	z-index: 999;
+	width: 250px;
+	padding: 10px;
+	background-color: rgba(0, 0, 0, 0.6);
+}
+
+#maps input {
+	margin-bottom: 18px;
+}
+
+#closeMaps {
+	position: absolute;
+	left: 255px;
+	bottom: 180px;
+	cursor: pointer;
+}
